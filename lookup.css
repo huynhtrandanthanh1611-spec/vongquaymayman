@@ -1,0 +1,505 @@
+/* ==================================================
+   TRA CỨU NHANH
+   ================================================== */
+
+.lookup-enabled .result-screen h2,
+.lookup-selectable {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
+
+
+/* KÍNH LÚP */
+
+.lookup-selection-button {
+  position: fixed;
+  z-index: 99999;
+
+  width: 48px;
+  height: 48px;
+
+  padding: 0;
+
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+
+  background: #ffc94f;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 23px;
+
+  box-shadow:
+    0 5px 0 #dc9d2f,
+    0 8px 18px rgba(87, 66, 28, 0.22);
+
+  cursor: pointer;
+  touch-action: manipulation;
+
+  opacity: 0;
+
+  transform: scale(.65);
+
+  transition:
+    opacity .16s ease,
+    transform .16s ease;
+}
+
+.lookup-selection-button.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.lookup-selection-button:hover {
+  transform: scale(1.1);
+}
+
+.lookup-selection-button:active {
+  transform:
+    translateY(2px)
+    scale(.96);
+
+  box-shadow:
+    0 2px 0 #dc9d2f;
+}
+
+
+/* OVERLAY */
+
+.lookup-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 99998;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 18px;
+
+  background:
+    rgba(36, 65, 74, .32);
+
+  backdrop-filter:
+    blur(4px);
+
+  opacity: 0;
+
+  transition:
+    opacity .18s ease;
+}
+
+.lookup-overlay.show {
+  opacity: 1;
+}
+
+
+/* POPUP */
+
+.lookup-popup {
+  position: relative;
+
+  width: 430px;
+  max-width:
+    calc(100vw - 24px);
+
+  max-height:
+    calc(100vh - 30px);
+
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  background:
+    #fffdf5;
+
+  border:
+    4px solid #ffffff;
+
+  border-radius:
+    26px;
+
+  padding:
+    22px 22px 18px;
+
+  box-shadow:
+    0 14px 0 rgba(77, 158, 164, .18),
+    0 25px 60px rgba(49, 80, 91, .28);
+
+  font-family:
+    "Quicksand",
+    sans-serif;
+
+  font-weight: 700;
+
+  color: #5c5143;
+
+  transform:
+    translateY(14px)
+    scale(.96);
+
+  transition:
+    transform .18s ease;
+}
+
+.lookup-overlay.show
+.lookup-popup {
+  transform:
+    translateY(0)
+    scale(1);
+}
+
+
+/* NÚT X */
+
+.lookup-close {
+  position: absolute;
+
+  right: 13px;
+  top: 13px;
+
+  width: 38px;
+  height: 38px;
+
+  border: 0;
+  border-radius: 50%;
+
+  background:
+    #f3eee1;
+
+  color:
+    #826a50;
+
+  font-family:
+    "Quicksand",
+    sans-serif;
+
+  font-weight: 700;
+
+  font-size: 24px;
+
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.lookup-close:hover {
+  background:
+    #ffe3a7;
+}
+
+
+/* HEADER */
+
+.lookup-heading {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  padding-right: 40px;
+
+  margin-bottom: 14px;
+}
+
+.lookup-heading-icon {
+  font-size: 28px;
+}
+
+.lookup-heading h2 {
+  margin: 0;
+
+  color:
+    #438c94;
+
+  font-size: 19px;
+
+  letter-spacing:
+    .4px;
+}
+
+
+/* HÌNH */
+
+.lookup-image-box {
+  width: 100%;
+
+  min-height: 120px;
+
+  max-height: 240px;
+
+  margin-bottom: 15px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  overflow: hidden;
+
+  border-radius: 19px;
+
+  background:
+    #f4f7ef;
+
+  border:
+    1px solid #e0eadb;
+}
+
+.lookup-image {
+  display: block;
+
+  max-width: 100%;
+  max-height: 240px;
+
+  width: auto;
+  height: auto;
+
+  object-fit: contain;
+}
+
+.lookup-no-image {
+  text-align: center;
+
+  padding: 25px;
+
+  color:
+    #9a8a74;
+}
+
+.lookup-no-image span {
+  font-size: 42px;
+}
+
+.lookup-no-image p {
+  margin:
+    7px 0 0;
+}
+
+
+/* TIÊU ĐỀ */
+
+.lookup-result-title {
+  margin:
+    4px 0 8px;
+
+  text-align: center;
+
+  color:
+    #86612d;
+
+  font-size:
+    clamp(
+      22px,
+      5vw,
+      29px
+    );
+
+  line-height: 1.25;
+}
+
+
+/* MÔ TẢ */
+
+.lookup-description {
+  margin:
+    0 0 17px;
+
+  font-size:
+    16px;
+
+  line-height:
+    1.7;
+
+  text-align:
+    left;
+
+  color:
+    #5f5549;
+}
+
+
+/* ĐỌC */
+
+.lookup-speak-button {
+  width: 100%;
+
+  min-height: 48px;
+
+  border: 0;
+
+  border-radius: 16px;
+
+  padding:
+    10px 16px;
+
+  background:
+    #62aeb3;
+
+  color:
+    #ffffff;
+
+  font-family:
+    "Quicksand",
+    sans-serif;
+
+  font-weight: 700;
+
+  font-size:
+    15px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 4px 0 #39858b;
+
+  transition:
+    transform .12s ease,
+    box-shadow .12s ease;
+}
+
+.lookup-speak-button:hover {
+  transform:
+    translateY(-2px);
+}
+
+.lookup-speak-button:active {
+  transform:
+    translateY(2px);
+
+  box-shadow:
+    0 1px 0 #39858b;
+}
+
+.lookup-speak-button:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+
+/* NGUỒN */
+
+.lookup-source {
+  margin:
+    14px 0 0;
+
+  text-align: center;
+
+  font-size:
+    11px;
+
+  color:
+    #a19584;
+}
+
+
+/* LOADING */
+
+.lookup-loading {
+  padding:
+    38px 15px;
+
+  text-align: center;
+
+  color:
+    #7f755f;
+}
+
+.lookup-loading-icon {
+  font-size:
+    42px;
+
+  animation:
+    lookupPulse 1s ease-in-out infinite alternate;
+}
+
+.lookup-loading p {
+  margin:
+    10px 0 0;
+
+  font-size:
+    16px;
+}
+
+
+/* ERROR */
+
+.lookup-error {
+  padding:
+    30px 15px;
+
+  text-align: center;
+
+  color:
+    #806d53;
+}
+
+.lookup-error > div {
+  font-size:
+    45px;
+}
+
+.lookup-error p {
+  margin:
+    10px 0 0;
+
+  line-height:
+    1.6;
+}
+
+
+@keyframes lookupPulse {
+
+  from {
+    transform:
+      scale(.9);
+  }
+
+  to {
+    transform:
+      scale(1.12);
+  }
+}
+
+
+/* ĐIỆN THOẠI */
+
+@media (max-width: 580px) {
+
+  .lookup-popup {
+    width:
+      calc(100vw - 24px);
+
+    padding:
+      18px 16px 16px;
+
+    border-radius:
+      22px;
+  }
+
+  .lookup-description {
+    font-size:
+      15px;
+  }
+
+  .lookup-image-box {
+    max-height:
+      210px;
+  }
+
+  .lookup-image {
+    max-height:
+      210px;
+  }
+
+  .lookup-selection-button {
+    width:
+      45px;
+
+    height:
+      45px;
+
+    font-size:
+      21px;
+  }
+}
