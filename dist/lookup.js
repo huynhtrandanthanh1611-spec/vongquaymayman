@@ -11,6 +11,8 @@ let currentLookupTitle = '';
 let currentLookupDescription = '';
 let lookupSpeaking = false;
 let lookupUtterance = null;
+let sampleSpeaking = false;
+let sampleUtterance = null;
 
 const normalizeLookupKey = text =>
   String(text || '')
@@ -189,10 +191,40 @@ function closeLookupPopup() {
   setTimeout(() => { lookupOverlay.hidden = true; }, 180);
 }
 
-function getVietnameseVoice() {
+/* =========================================================
+   GIỌNG ĐỌC TIẾNG VIỆT - ƯU TIÊN NỮ
+   ========================================================= */
+
+function getVietnameseFemaleVoice() {
   if (!('speechSynthesis' in window)) return null;
+
   const voices = window.speechSynthesis.getVoices();
-  return voices.find(v => v.lang === 'vi-VN') || voices.find(v => v.lang?.toLowerCase().startsWith('vi')) || null;
+  const vietnamese = voices.filter(voice =>
+    String(voice.lang || '').toLowerCase().startsWith('vi')
+  );
+
+  if (!vietnamese.length) return null;
+
+  const scored = vietnamese
+    .map(voice => {
+      const label = `${voice.name || ''} ${voice.voiceURI || ''}`.toLocaleLowerCase('vi');
+      let score = String(voice.lang || '').toLowerCase() === 'vi-vn' ? 100 : 70;
+
+      /* Các giọng nữ tiếng Việt thường gặp trên Windows/Edge/Chrome. */
+      if (/hoai\s*my|hoài\s*mỹ|hoa[iì]\s*my|female|nữ/.test(label)) score += 150;
+      if (/google.*tiếng việt|google.*vietnamese/.test(label)) score += 90;
+      if (/microsoft/.test(label)) score += 15;
+      if (voice.localService) score += 8;
+
+      /* Không chọn các giọng nam đã biết. */
+      if (/nam\s*minh|namminh|male|giọng nam|giong nam/.test(label)) score -= 500;
+
+      return {voice, score};
+    })
+    .filter(item => item.score > -200)
+    .sort((a, b) => b.score - a.score);
+
+  return scored[0]?.voice || null;
 }
 
 function updateSpeakButton() {
@@ -211,18 +243,21 @@ function stopLookupSpeech() {
   lookupUtterance = null;
   lookupSpeaking = false;
   updateSpeakButton();
+  if (typeof updateSampleButton === 'function') updateSampleButton();
 }
 
 function speakLookupResult() {
   if (!('speechSynthesis' in window) || !currentLookupDescription) return;
   if (lookupSpeaking) return stopLookupSpeech();
 
+  stopSampleSpeech();
+
   const utterance = new SpeechSynthesisUtterance(`${currentLookupTitle}. ${currentLookupDescription}`);
   utterance.lang = 'vi-VN';
-  utterance.rate = 0.85;
-  utterance.pitch = 1.05;
+  utterance.rate = 0.82;
+  utterance.pitch = 1.04;
   utterance.volume = 1;
-  const voice = getVietnameseVoice();
+  const voice = getVietnameseFemaleVoice();
   if (voice) utterance.voice = voice;
 
   utterance.onstart = () => { lookupSpeaking = true; updateSpeakButton(); };
@@ -235,6 +270,132 @@ function speakLookupResult() {
   lookupUtterance = utterance;
   window.speechSynthesis.speak(utterance);
 }
+
+/* =========================================================
+   ĐỌC MẪU CHỮ VỪA QUAY TRÚNG
+   ========================================================= */
+
+const wheelResultScreen = document.getElementById('result-box');
+const wheelResultText = document.getElementById('result-text');
+const spinMainButton = document.getElementById('spin-main');
+
+const sampleButton = document.createElement('button');
+sampleButton.type = 'button';
+sampleButton.className = 'sample-word-button';
+sampleButton.setAttribute('aria-label', 'Đọc mẫu chữ vừa quay trúng bằng giọng nữ tiếng Việt');
+sampleButton.setAttribute('aria-pressed', 'false');
+sampleButton.textContent = '🔊 ĐỌC MẪU';
+sampleButton.hidden = true;
+
+Object.assign(sampleButton.style, {
+  position: 'absolute',
+  left: '50%',
+  bottom: '104px',
+  transform: 'translateX(-50%)',
+  zIndex: '12',
+  minWidth: '180px',
+  minHeight: '50px',
+  padding: '10px 20px',
+  border: '3px solid #ffffff',
+  borderRadius: '18px',
+  background: '#67aeb4',
+  color: '#ffffff',
+  boxShadow: '0 5px 0 #3d858b, 0 10px 24px rgba(54,96,101,.22)',
+  fontFamily: 'Quicksand, sans-serif',
+  fontSize: '16px',
+  fontWeight: '800',
+  letterSpacing: '.3px',
+  cursor: 'pointer',
+  touchAction: 'manipulation'
+});
+
+if (wheelResultScreen && spinMainButton) {
+  wheelResultScreen.insertBefore(sampleButton, spinMainButton);
+}
+
+function getSampleText() {
+  if (!wheelResultText || wheelResultText.hidden) return '';
+  return String(wheelResultText.textContent || '').trim();
+}
+
+function updateSampleButton() {
+  if (!sampleButton) return;
+
+  const text = getSampleText();
+  sampleButton.hidden = !text || !wheelResultScreen || wheelResultScreen.hidden;
+
+  if (sampleSpeaking) {
+    sampleButton.textContent = '⏹ DỪNG ĐỌC';
+    sampleButton.setAttribute('aria-pressed', 'true');
+  } else {
+    sampleButton.textContent = '🔊 ĐỌC MẪU';
+    sampleButton.setAttribute('aria-pressed', 'false');
+  }
+
+  if (!('speechSynthesis' in window)) {
+    sampleButton.disabled = true;
+    sampleButton.textContent = 'KHÔNG CÓ GIỌNG ĐỌC';
+  } else {
+    sampleButton.disabled = false;
+  }
+}
+
+function stopSampleSpeech() {
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  sampleUtterance = null;
+  sampleSpeaking = false;
+  updateSampleButton();
+}
+
+function speakSampleWord() {
+  const text = getSampleText();
+  if (!text || !('speechSynthesis' in window)) return;
+
+  if (sampleSpeaking) {
+    stopSampleSpeech();
+    return;
+  }
+
+  stopLookupSpeech();
+
+  const voice = getVietnameseFemaleVoice();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'vi-VN';
+  utterance.rate = 0.72;
+  utterance.pitch = 1.06;
+  utterance.volume = 1;
+  if (voice) utterance.voice = voice;
+
+  utterance.onstart = () => {
+    sampleSpeaking = true;
+    updateSampleButton();
+  };
+
+  utterance.onend = utterance.onerror = () => {
+    sampleSpeaking = false;
+    sampleUtterance = null;
+    updateSampleButton();
+  };
+
+  sampleUtterance = utterance;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utterance);
+}
+
+sampleButton.addEventListener('click', speakSampleWord);
+
+if (wheelResultScreen && wheelResultText) {
+  const sampleObserver = new MutationObserver(updateSampleButton);
+  sampleObserver.observe(wheelResultScreen, {attributes:true, attributeFilter:['hidden']});
+  sampleObserver.observe(wheelResultText, {attributes:true, childList:true, characterData:true, subtree:true, attributeFilter:['hidden']});
+  updateSampleButton();
+}
+
+/* Khi chuyển sang lượt tiếp theo thì dừng giọng đọc cũ. */
+spinMainButton?.addEventListener('click', stopSampleSpeech, true);
+document.getElementById('spin-start')?.addEventListener('click', stopSampleSpeech, true);
+
+/* ========================================================= */
 
 document.addEventListener('mouseup', () => setTimeout(showLookupButton, 10));
 document.addEventListener('touchend', () => setTimeout(showLookupButton, 120));
@@ -263,9 +424,13 @@ window.addEventListener('resize', hideLookupButton);
 window.addEventListener('scroll', hideLookupButton, true);
 
 if ('speechSynthesis' in window) {
-  window.speechSynthesis.addEventListener?.('voiceschanged', getVietnameseVoice);
+  window.speechSynthesis.addEventListener?.('voiceschanged', () => {
+    getVietnameseFemaleVoice();
+    updateSampleButton();
+  });
 } else {
   speakButton.hidden = true;
+  sampleButton.hidden = true;
 }
 
 document.documentElement.classList.add('lookup-enabled');
