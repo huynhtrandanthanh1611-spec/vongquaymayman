@@ -156,12 +156,15 @@
 }
 .prep-lookup-actions{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
   gap:9px;
   margin-top:8px;
+  width:100%;
 }
 .prep-lookup-actions button{
   min-height:42px;
+  width:100%;
+  box-sizing:border-box;
   border:0;
   border-radius:12px;
   font:900 12px "Quicksand",sans-serif;
@@ -169,6 +172,11 @@
 }
 .prep-lookup-delete{background:#f4e5e0;color:#9a594d}
 .prep-lookup-save{background:#69ad8f;color:#fff;box-shadow:0 3px 0 #4f8a71}
+/* Khi nút XÓA bị ẩn, LƯU chiếm trọn hàng và căn giữa tuyệt đối. */
+.prep-lookup-delete[hidden] + .prep-lookup-save{
+  grid-column:1 / -1;
+  justify-self:stretch;
+}
 
 .restore-history-button{
   margin-left:auto;
@@ -188,6 +196,7 @@
 @media(max-width:580px){
   .prep-lookup-card{padding:18px 15px}
   .prep-lookup-actions{grid-template-columns:1fr}
+  .prep-lookup-delete[hidden] + .prep-lookup-save{grid-column:1}
   .restore-history-button{font-size:9px;padding:5px 7px}
   .prep-lookup-row-button{font-size:9px;padding:4px 6px}
 }
