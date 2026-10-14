@@ -1,8 +1,9 @@
 /* DỮ LIỆU TRA CỨU TỰ THÊM CỦA GIÁO VIÊN
-   - Tự nhập nghĩa
-   - Dán ảnh trực tiếp bằng Ctrl+V
-   - Lưu trên trình duyệt hiện tại
-   - Ưu tiên dữ liệu tự thêm hơn Wikipedia/Wikidata
+   Bản nhẹ: không MutationObserver, không vòng lặp DOM.
+   - Nhập/copy-paste nghĩa
+   - Ctrl+V ảnh hoặc link ảnh
+   - Lưu trên trình duyệt
+   - Dữ liệu tự thêm được ưu tiên khi tra lại
 */
 
 const CUSTOM_LOOKUP_STORAGE = 'lucky-lookup-custom-v1';
@@ -10,7 +11,23 @@ const CUSTOM_LOOKUP_MAX_TERM = 80;
 let customLookupTerm = '';
 let lastLookupSelection = '';
 let pastedImageSource = '';
-let applyingCustomLookup = false;
+let activeCustomRecord = null;
+
+/* Giới hạn thời gian gọi Wikipedia/Wikidata để mạng chậm không treo tra cứu. */
+const nativeFetch = window.fetch.bind(window);
+window.fetch = async (input, init = {}) => {
+  const url = typeof input === 'string' ? input : input?.url || '';
+  const isLookupApi = /https:\/\/(?:vi\.wikipedia\.org|www\.wikidata\.org)\//i.test(url);
+  if (!isLookupApi || init.signal) return nativeFetch(input, init);
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 3000);
+  try {
+    return await nativeFetch(input, {...init, signal: controller.signal});
+  } finally {
+    clearTimeout(timer);
+  }
+};
 
 const normalizeLookupKey = text =>
   String(text || '')
@@ -67,76 +84,62 @@ function selectedLookupText() {
   return text;
 }
 
-function rememberLookupSelection() {
-  const text = selectedLookupText();
-  if (text) lastLookupSelection = text;
-}
-
-document.addEventListener('mouseup', () => setTimeout(rememberLookupSelection, 0));
-document.addEventListener('touchend', () => setTimeout(rememberLookupSelection, 80));
-document.addEventListener('pointerdown', event => {
-  if (event.target.closest?.('.lookup-selection-button')) {
-    const text = selectedLookupText() || lastLookupSelection;
-    if (text) customLookupTerm = text;
-  }
-}, true);
-
 function imageBlobToDataURL(blob, maxSide = 900) {
   return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(blob);
+    const objectURL = URL.createObjectURL(blob);
     const img = new Image();
     img.onload = () => {
       try {
-        const scale = Math.min(1, maxSide / Math.max(img.naturalWidth || 1, img.naturalHeight || 1));
+        const maxDimension = Math.max(img.naturalWidth || 1, img.naturalHeight || 1);
+        const scale = Math.min(1, maxSide / maxDimension);
         const width = Math.max(1, Math.round(img.naturalWidth * scale));
         const height = Math.max(1, Math.round(img.naturalHeight * scale));
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = '#fff';
         ctx.fillRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
-        URL.revokeObjectURL(url);
-        resolve(canvas.toDataURL('image/jpeg', 0.84));
+        URL.revokeObjectURL(objectURL);
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
       } catch (error) {
-        URL.revokeObjectURL(url);
+        URL.revokeObjectURL(objectURL);
         reject(error);
       }
     };
     img.onerror = () => {
-      URL.revokeObjectURL(url);
+      URL.revokeObjectURL(objectURL);
       reject(new Error('Không đọc được ảnh'));
     };
-    img.src = url;
+    img.src = objectURL;
   });
-}
-
-function isImageText(text) {
-  return /^data:image\//i.test(text) || /^https?:\/\//i.test(text);
 }
 
 function setupCustomLookup() {
   const overlay = document.querySelector('.lookup-overlay');
-  const popup = overlay?.querySelector('.lookup-popup');
   const body = overlay?.querySelector('.lookup-body');
-  const resultBox = overlay?.querySelector('.lookup-result');
+  const lookupButton = document.querySelector('.lookup-selection-button');
+  const closeButton = overlay?.querySelector('.lookup-close');
   const loadingBox = overlay?.querySelector('.lookup-loading');
+  const resultBox = overlay?.querySelector('.lookup-result');
   const errorBox = overlay?.querySelector('.lookup-error');
   const resultTitle = overlay?.querySelector('.lookup-result-title');
   const description = overlay?.querySelector('.lookup-description');
   const image = overlay?.querySelector('.lookup-image');
   const noImage = overlay?.querySelector('.lookup-no-image');
   const source = overlay?.querySelector('.lookup-source');
+  const speakButton = overlay?.querySelector('.lookup-speak-button');
 
-  if (!overlay || !popup || !body || !resultBox || !resultTitle || !description || !image || !source) {
-    setTimeout(setupCustomLookup, 120);
+  if (!overlay || !body || !lookupButton || !resultBox || !resultTitle || !description || !image || !source) {
+    setTimeout(setupCustomLookup, 150);
     return;
   }
 
+  const canEdit = !/^#w[23]=/.test(location.hash);
+
   if (body.querySelector('.lookup-custom-tools')) return;
 
-  const canEdit = !/^#w[23]=/.test(location.hash);
   const tools = document.createElement('div');
   tools.className = 'lookup-custom-tools';
   tools.innerHTML = `
@@ -145,7 +148,7 @@ function setupCustomLookup() {
       <div class="lookup-custom-title">DỮ LIỆU CỦA GIÁO VIÊN</div>
       <div class="lookup-custom-term"></div>
       <label class="lookup-custom-label" for="lookup-custom-meaning">Nghĩa của từ</label>
-      <textarea id="lookup-custom-meaning" class="lookup-custom-meaning" rows="5" placeholder="Copy nghĩa ở nơi khác rồi Ctrl+V vào đây, hoặc tự nhập..."></textarea>
+      <textarea id="lookup-custom-meaning" class="lookup-custom-meaning" rows="5" placeholder="Copy nghĩa rồi Ctrl+V vào đây, hoặc tự nhập..."></textarea>
       <div class="lookup-custom-label">Hình minh họa</div>
       <div class="lookup-custom-paste" tabindex="0" role="button" aria-label="Dán hình ảnh từ clipboard">
         <div class="lookup-custom-paste-icon">📋🖼️</div>
@@ -179,12 +182,10 @@ function setupCustomLookup() {
   const saveButton = tools.querySelector('.lookup-custom-save');
   const statusBox = tools.querySelector('.lookup-custom-status');
 
-  function resolveCurrentTerm() {
-    const selection = selectedLookupText();
-    if (selection) lastLookupSelection = selection;
-    const titleText = resultTitle.textContent.trim();
-    const candidate = customLookupTerm || lastLookupSelection || titleText;
-    return String(candidate || '').trim().slice(0, CUSTOM_LOOKUP_MAX_TERM);
+  function resolveTerm() {
+    return String(customLookupTerm || lastLookupSelection || resultTitle.textContent || '')
+      .trim()
+      .slice(0, CUSTOM_LOOKUP_MAX_TERM);
   }
 
   function setPreview(src) {
@@ -200,122 +201,24 @@ function setupCustomLookup() {
     }
   }
 
-  function openEditor() {
-    customLookupTerm = resolveCurrentTerm();
-    if (!customLookupTerm) {
-      statusBox.textContent = 'Hãy tra cứu một từ trước.';
-      return;
-    }
-    const saved = getCustomLookup(customLookupTerm);
-    termBox.textContent = `Từ: “${customLookupTerm}”`;
-    meaningBox.value = saved?.meaning || description.textContent.trim() || '';
-    setPreview(saved?.image || (!image.hidden ? image.currentSrc || image.src : ''));
-    statusBox.textContent = saved ? 'Đang chỉnh dữ liệu đã lưu.' : 'Bạn có thể copy–paste nghĩa và ảnh.';
-    deleteButton.hidden = !saved;
-    editor.hidden = false;
-    openButton.hidden = true;
-    meaningBox.focus();
-  }
-
-  function closeEditor() {
+  function resetEditor() {
     editor.hidden = true;
     if (canEdit) openButton.hidden = false;
     statusBox.textContent = '';
   }
 
-  async function handleImagePaste(event) {
-    const items = [...(event.clipboardData?.items || [])];
-    const imageItem = items.find(item => item.type.startsWith('image/'));
-    if (imageItem) {
-      event.preventDefault();
-      statusBox.textContent = 'Đang xử lý ảnh...';
-      try {
-        const blob = imageItem.getAsFile();
-        const dataURL = await imageBlobToDataURL(blob);
-        setPreview(dataURL);
-        statusBox.textContent = 'Đã dán ảnh. Nhấn LƯU để ghi nhớ.';
-      } catch {
-        statusBox.textContent = 'Không dán được ảnh này. Hãy thử ảnh khác.';
-      }
-      return true;
-    }
-    const text = event.clipboardData?.getData('text/plain')?.trim() || '';
-    if (isImageText(text)) {
-      event.preventDefault();
-      setPreview(text);
-      statusBox.textContent = 'Đã nhận link ảnh. Nhấn LƯU để ghi nhớ.';
-      return true;
-    }
-    return false;
-  }
+  function renderCustom(record) {
+    activeCustomRecord = record;
+    customLookupTerm = record.term || resolveTerm();
 
-  pasteBox.addEventListener('paste', handleImagePaste);
-  editor.addEventListener('paste', event => {
-    if (event.target === meaningBox) return;
-    handleImagePaste(event);
-  });
-
-  pasteBox.addEventListener('click', () => {
-    pasteBox.focus();
-    statusBox.textContent = 'Bây giờ nhấn Ctrl+V để dán ảnh.';
-  });
-
-  removeImageButton.addEventListener('click', () => {
-    setPreview('');
-    statusBox.textContent = 'Đã bỏ ảnh. Nhấn LƯU để cập nhật.';
-  });
-
-  openButton.addEventListener('click', openEditor);
-  cancelButton.addEventListener('click', closeEditor);
-
-  saveButton.addEventListener('click', () => {
-    customLookupTerm = resolveCurrentTerm();
-    const meaning = meaningBox.value.trim();
-    if (!customLookupTerm) {
-      statusBox.textContent = 'Không xác định được từ cần lưu.';
-      return;
-    }
-    if (!meaning && !pastedImageSource) {
-      statusBox.textContent = 'Hãy nhập nghĩa hoặc dán ảnh trước khi lưu.';
-      return;
-    }
-    try {
-      setCustomLookup(customLookupTerm, {meaning, image: pastedImageSource});
-      statusBox.textContent = '✓ Đã lưu dữ liệu cho từ này.';
-      applyCustomResult();
-      setTimeout(closeEditor, 650);
-    } catch (error) {
-      console.error(error);
-      statusBox.textContent = 'Bộ nhớ trình duyệt đã đầy. Hãy thử ảnh nhỏ hơn.';
-    }
-  });
-
-  deleteButton.addEventListener('click', () => {
-    const term = resolveCurrentTerm();
-    if (!term) return;
-    deleteCustomLookup(term);
-    statusBox.textContent = 'Đã xóa dữ liệu tự thêm. Lần sau sẽ dùng kết quả tra cứu mặc định.';
-    deleteButton.hidden = true;
-    setTimeout(() => location.reload(), 650);
-  });
-
-  function applyCustomResult() {
-    if (applyingCustomLookup || overlay.hidden) return;
-    const term = resolveCurrentTerm();
-    const saved = term ? getCustomLookup(term) : null;
-    if (!saved) return;
-
-    applyingCustomLookup = true;
-    customLookupTerm = saved.term || term;
     if (loadingBox) loadingBox.hidden = true;
     if (errorBox) errorBox.hidden = true;
     resultBox.hidden = false;
+    resultTitle.textContent = customLookupTerm;
+    description.textContent = record.meaning || '';
 
-    if (resultTitle.textContent !== customLookupTerm) resultTitle.textContent = customLookupTerm;
-    if (description.textContent !== saved.meaning) description.textContent = saved.meaning;
-
-    if (saved.image) {
-      if (image.src !== saved.image) image.src = saved.image;
+    if (record.image) {
+      image.src = record.image;
       image.alt = `Hình minh họa ${customLookupTerm}`;
       image.hidden = false;
       if (noImage) noImage.hidden = true;
@@ -326,34 +229,172 @@ function setupCustomLookup() {
     }
 
     source.textContent = 'Nguồn: Dữ liệu giáo viên tự thêm';
+    if (speakButton) speakButton.disabled = false;
     openButton.textContent = '✏️ CHỈNH NGHĨA & ẢNH';
-    applyingCustomLookup = false;
   }
 
-  const observer = new MutationObserver(() => {
-    if (applyingCustomLookup) return;
-    if (!overlay.hidden && overlay.classList.contains('show')) {
-      const titleText = resultTitle.textContent.trim();
-      if (!customLookupTerm && titleText) customLookupTerm = titleText;
-      const saved = getCustomLookup(resolveCurrentTerm());
-      if (saved) queueMicrotask(applyCustomResult);
-      else openButton.textContent = '✏️ TỰ THÊM NGHĨA & ẢNH';
-    } else {
-      customLookupTerm = '';
-      closeEditor();
+  function openOverlayWithCustom(record) {
+    overlay.hidden = false;
+    requestAnimationFrame(() => overlay.classList.add('show'));
+    renderCustom(record);
+  }
+
+  function openEditor() {
+    const term = resolveTerm();
+    if (!term) {
+      statusBox.textContent = 'Hãy chọn một từ để tra cứu trước.';
+      return;
+    }
+
+    customLookupTerm = term;
+    const saved = getCustomLookup(term);
+    termBox.textContent = `Từ: “${term}”`;
+    meaningBox.value = saved?.meaning || description.textContent.trim() || '';
+    setPreview(saved?.image || (!image.hidden ? (image.currentSrc || image.src) : ''));
+    statusBox.textContent = saved ? 'Đang chỉnh dữ liệu đã lưu.' : 'Bạn có thể copy–paste nghĩa và ảnh.';
+    deleteButton.hidden = !saved;
+    editor.hidden = false;
+    openButton.hidden = true;
+    meaningBox.focus();
+  }
+
+  async function handleImagePaste(event) {
+    const items = [...(event.clipboardData?.items || [])];
+    const imageItem = items.find(item => item.type.startsWith('image/'));
+
+    if (imageItem) {
+      event.preventDefault();
+      statusBox.textContent = 'Đang xử lý ảnh...';
+      try {
+        const file = imageItem.getAsFile();
+        setPreview(await imageBlobToDataURL(file));
+        statusBox.textContent = '✓ Đã dán ảnh. Nhấn LƯU để ghi nhớ.';
+      } catch {
+        statusBox.textContent = 'Không dán được ảnh này. Hãy thử ảnh khác.';
+      }
+      return;
+    }
+
+    const text = event.clipboardData?.getData('text/plain')?.trim() || '';
+    if (/^(?:data:image\/|https?:\/\/)/i.test(text)) {
+      event.preventDefault();
+      setPreview(text);
+      statusBox.textContent = '✓ Đã nhận link ảnh. Nhấn LƯU để ghi nhớ.';
+    }
+  }
+
+  /* Ghi nhớ từ trước khi lookup.js làm mất vùng bôi đen. */
+  document.addEventListener('mouseup', () => {
+    setTimeout(() => {
+      const text = selectedLookupText();
+      if (text) lastLookupSelection = text;
+    }, 0);
+  });
+
+  document.addEventListener('touchend', () => {
+    setTimeout(() => {
+      const text = selectedLookupText();
+      if (text) lastLookupSelection = text;
+    }, 80);
+  });
+
+  /* Nếu từ đã có dữ liệu giáo viên, mở ngay, không gọi mạng. */
+  lookupButton.addEventListener('pointerdown', event => {
+    const term = selectedLookupText() || lastLookupSelection;
+    if (!term) return;
+
+    customLookupTerm = term;
+    const saved = getCustomLookup(term);
+    if (!saved) {
+      activeCustomRecord = null;
+      openButton.textContent = '✏️ TỰ THÊM NGHĨA & ẢNH';
+      return;
+    }
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    openOverlayWithCustom(saved);
+  }, true);
+
+  openButton.addEventListener('click', openEditor);
+  cancelButton.addEventListener('click', resetEditor);
+
+  pasteBox.addEventListener('click', () => {
+    pasteBox.focus();
+    statusBox.textContent = 'Nhấn Ctrl+V để dán ảnh.';
+  });
+  pasteBox.addEventListener('paste', handleImagePaste);
+  editor.addEventListener('paste', event => {
+    if (event.target !== meaningBox) handleImagePaste(event);
+  });
+
+  removeImageButton.addEventListener('click', () => {
+    setPreview('');
+    statusBox.textContent = 'Đã bỏ ảnh. Nhấn LƯU để cập nhật.';
+  });
+
+  saveButton.addEventListener('click', () => {
+    const term = resolveTerm();
+    const meaning = meaningBox.value.trim();
+    if (!term) {
+      statusBox.textContent = 'Không xác định được từ cần lưu.';
+      return;
+    }
+    if (!meaning && !pastedImageSource) {
+      statusBox.textContent = 'Hãy nhập nghĩa hoặc dán ảnh trước khi lưu.';
+      return;
+    }
+
+    try {
+      setCustomLookup(term, {meaning, image: pastedImageSource});
+      const saved = getCustomLookup(term);
+      statusBox.textContent = '✓ Đã lưu.';
+      renderCustom(saved);
+      setTimeout(resetEditor, 450);
+    } catch (error) {
+      console.error(error);
+      statusBox.textContent = 'Bộ nhớ trình duyệt đã đầy. Hãy dùng ảnh nhỏ hơn.';
     }
   });
 
-  observer.observe(overlay, {
-    subtree: true,
-    childList: true,
-    attributes: true,
-    characterData: true,
-    attributeFilter: ['hidden', 'class', 'src']
+  deleteButton.addEventListener('click', () => {
+    const term = resolveTerm();
+    if (!term) return;
+    deleteCustomLookup(term);
+    activeCustomRecord = null;
+    resetEditor();
+    overlay.classList.remove('show');
+    setTimeout(() => { overlay.hidden = true; }, 180);
   });
 
-  overlay.addEventListener('transitionend', () => {
-    if (!overlay.hidden) applyCustomResult();
+  /* Đọc dữ liệu tự thêm mà không phụ thuộc biến nội bộ của lookup.js. */
+  speakButton?.addEventListener('click', event => {
+    if (!activeCustomRecord) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(
+      `${activeCustomRecord.term}. ${activeCustomRecord.meaning || ''}`
+    );
+    utterance.lang = 'vi-VN';
+    utterance.rate = 0.85;
+    utterance.pitch = 1.05;
+    window.speechSynthesis.speak(utterance);
+  }, true);
+
+  closeButton?.addEventListener('click', () => {
+    activeCustomRecord = null;
+    customLookupTerm = '';
+    resetEditor();
+  });
+
+  overlay.addEventListener('click', event => {
+    if (event.target === overlay) {
+      activeCustomRecord = null;
+      customLookupTerm = '';
+      resetEditor();
+    }
   });
 }
 
