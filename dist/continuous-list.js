@@ -5,30 +5,37 @@
    ========================================================= */
 
 (() => {
+  if (window.__continuousWheelListActive) return;
+  window.__continuousWheelListActive = true;
+
   const list = document.getElementById('entry-list');
   const prev = document.getElementById('entry-prev');
   const next = document.getElementById('entry-next');
   const page = document.getElementById('entry-page');
 
-  if (!list || !prev || !next || !page) return;
+  if (!list || !prev || !next || !page) {
+    window.__continuousWheelListActive = false;
+    return;
+  }
 
   const pagination = page.closest('.pagination');
 
   const style = document.createElement('style');
+  style.dataset.continuousWheelList = 'true';
   style.textContent = `
     #content-panel > .pagination{
       display:none !important;
     }
     #entry-list{
-      max-height:clamp(300px,52vh,610px);
+      max-height:clamp(300px,52vh,610px) !important;
       overflow-y:auto !important;
-      overflow-x:hidden;
+      overflow-x:hidden !important;
       overscroll-behavior:contain;
       scrollbar-gutter:stable;
-      padding-right:6px;
+      padding-right:7px;
       scroll-behavior:smooth;
     }
-    #entry-list::-webkit-scrollbar{width:9px}
+    #entry-list::-webkit-scrollbar{width:10px}
     #entry-list::-webkit-scrollbar-track{
       background:rgba(221,207,184,.22);
       border-radius:999px;
@@ -41,12 +48,15 @@
     }
     #entry-list::-webkit-scrollbar-thumb:hover{background:#c5a668}
     @media(max-width:739px){
-      #entry-list{max-height:58vh;padding-right:4px}
+      #entry-list{max-height:58vh !important;padding-right:4px}
     }
   `;
   document.head.appendChild(style);
 
-  if (pagination) pagination.hidden = true;
+  if (pagination) {
+    pagination.hidden = true;
+    pagination.style.display = 'none';
+  }
 
   let rebuilding = false;
   let scheduled = false;
@@ -123,11 +133,17 @@
 
       const totalPages = parseTotalPages();
       const collected = [];
+      const seen = new Set();
       let emptyNode = null;
 
       for (let current = 0; current < totalPages; current += 1) {
         const rows = [...list.querySelectorAll(':scope > .entry-row')];
-        if (rows.length) collected.push(...rows);
+        for (const row of rows) {
+          const id = row.dataset.id || `row-${current}-${collected.length}`;
+          if (seen.has(id)) continue;
+          seen.add(id);
+          collected.push(row);
+        }
 
         if (!rows.length && !emptyNode) {
           emptyNode = list.querySelector(':scope > .empty-list');
@@ -144,8 +160,15 @@
         list.append(emptyNode);
       }
 
-      if (pagination) pagination.hidden = true;
-      list.scrollTop = Math.min(previousScroll, Math.max(0, list.scrollHeight - list.clientHeight));
+      if (pagination) {
+        pagination.hidden = true;
+        pagination.style.display = 'none';
+      }
+
+      list.scrollTop = Math.min(
+        previousScroll,
+        Math.max(0, list.scrollHeight - list.clientHeight)
+      );
       restoreActiveRow(focusState);
     } finally {
       observer.observe(list, {childList:true});
