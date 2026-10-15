@@ -19,17 +19,10 @@ if(/Không lặp lại|ĐIỀU BẤT NGỜ ĐANG CHỜ|result-eyebrow|remaining-
 if(!html.includes('class="wheel-hub" aria-hidden="true"></div>')||html.includes('id="spin-center"'))throw new Error('The wheel hub must be empty and contain no controls.');
 execFileSync(process.execPath,[path.join(root,'node_modules/vite/bin/vite.js'),'build'],{cwd:root,stdio:'inherit'});
 
-/* Các script giao diện phụ không đi qua Vite vì được nạp trực tiếp sau build. */
+/* Các script giao diện phụ được nạp trực tiếp sau build. */
 for(const name of ['loading-game.js','continuous-list.js','title-banner.js']){
  await fs.copyFile(path.join(dist,name),path.join(output,name));
 }
-
-/* Giữ nguyên ảnh tiêu đề tham chiếu dưới tên cố định để script dùng trực tiếp. */
-await fs.mkdir(path.join(output,'assets'),{recursive:true});
-await fs.copyFile(
- path.join(dist,'assets/title-banner.webp'),
- path.join(output,'assets/title-banner.webp')
-);
 
 /* Nạp các tiện ích sau khi app chính khởi tạo. */
 const builtIndex=path.join(output,'index.html');
