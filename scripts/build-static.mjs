@@ -24,8 +24,8 @@ for(const name of ['loading-game.js','continuous-list.js','title-banner.js']){
  await fs.copyFile(path.join(dist,name),path.join(output,name));
 }
 
-/* Lớp giao diện tham chiếu tách riêng, không đụng logic vòng quay. */
-const uiStyles=['reference-ui-layout.css','reference-ui-panel.css','reference-ui-responsive.css','reference-ui-mobile.css'];
+/* Các lớp giao diện chỉ override CSS, không thay logic vòng quay. */
+const uiStyles=['reference-ui-layout.css','reference-ui-panel.css','reference-ui-responsive.css','reference-ui-mobile.css','layout-fix.css'];
 for(const name of uiStyles){
  await fs.copyFile(path.join(dist,name),path.join(output,name));
 }
@@ -34,7 +34,7 @@ for(const name of ['title-banner.webp','btn-quay.png']){
  await fs.copyFile(path.join(dist,'assets',name),path.join(output,'assets',name));
 }
 
-/* Nạp CSS giao diện sau CSS gốc để chỉ override phần nhìn. */
+/* Nạp CSS giao diện sau CSS gốc để layout-fix.css có quyền ưu tiên cuối cùng. */
 const builtIndex=path.join(output,'index.html');
 let builtHtml=await fs.readFile(builtIndex,'utf8');
 for(const name of uiStyles){
