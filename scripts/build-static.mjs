@@ -24,9 +24,24 @@ for(const name of ['loading-game.js','continuous-list.js','title-banner.js']){
  await fs.copyFile(path.join(dist,name),path.join(output,name));
 }
 
-/* Nạp các tiện ích sau khi app chính khởi tạo. */
+/* Lớp giao diện tham chiếu tách riêng, không đụng logic vòng quay. */
+const uiStyles=['reference-ui-layout.css','reference-ui-panel.css','reference-ui-responsive.css','reference-ui-mobile.css'];
+for(const name of uiStyles){
+ await fs.copyFile(path.join(dist,name),path.join(output,name));
+}
+await fs.mkdir(path.join(output,'assets'),{recursive:true});
+for(const name of ['title-banner.webp','btn-quay.png']){
+ await fs.copyFile(path.join(dist,'assets',name),path.join(output,'assets',name));
+}
+
+/* Nạp CSS giao diện sau CSS gốc để chỉ override phần nhìn. */
 const builtIndex=path.join(output,'index.html');
 let builtHtml=await fs.readFile(builtIndex,'utf8');
+for(const name of uiStyles){
+ if(!builtHtml.includes(name)){
+  builtHtml=builtHtml.replace('</head>',`<link rel="stylesheet" href="./${name}"></head>`);
+ }
+}
 const extras=['continuous-list.js','title-banner.js'];
 for(const name of extras){
  if(!builtHtml.includes(name)){
