@@ -1,40 +1,41 @@
 /* LAYOUT / POSITION / SCALE / OVERFLOW ONLY */
 html,body{width:100%;height:100%;overflow:hidden!important}
-body{position:fixed!important;inset:0!important;min-width:0!important;min-height:0!important}
+body{position:fixed!important;inset:0!important;min-width:0!important;min-height:0!important;background:#82d8fb url('./assets/bg-vongquay.png') center center/cover no-repeat fixed!important}
 .site-shell{position:relative!important;width:100vw!important;height:100vh!important;max-width:none!important;margin:0!important;padding:0!important;overflow:hidden!important}
 main{position:relative!important;display:grid!important;grid-template-columns:minmax(0,1fr) clamp(480px,35vw,660px)!important;grid-template-rows:clamp(158px,18vh,205px) minmax(0,1fr)!important;column-gap:clamp(22px,2vw,38px)!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;padding:0 clamp(26px,2.2vw,44px) clamp(26px,3.8vh,42px)!important;box-sizing:border-box!important;overflow:hidden!important}
 .workspace{display:contents!important}
 
+/* Title: real image, intrinsic ratio, no thin banner */
 .page-title{grid-column:1!important;grid-row:1!important;position:relative!important;inset:auto!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;margin:0!important;padding:clamp(24px,2.8vh,32px) 0 0 clamp(115px,7.5vw,150px)!important;box-sizing:border-box!important;display:flex!important;align-items:flex-start!important;justify-content:center!important;overflow:visible!important;transform:none!important;z-index:20!important}
-.page-title::before{content:none!important;display:none!important}
-.page-title>*{display:block!important}
+.page-title::before{content:""!important;display:block!important;width:min(820px,88%)!important;aspect-ratio:2120/454!important;background:url('./assets/title-banner.webp') center/contain no-repeat!important;filter:drop-shadow(0 7px 8px rgba(53,108,146,.12))!important}
+.page-title>*{display:none!important}
 .page-title img,.page-title .title-banner-image{display:none!important}
-.page-title h1{display:block!important;margin:0!important;white-space:nowrap!important;font-size:clamp(46px,4.1vw,76px)!important;line-height:1!important;font-weight:900!important;letter-spacing:-.045em!important;color:#f08a13!important;-webkit-text-stroke:4px #fffaf0!important;paint-order:stroke fill!important;text-shadow:0 4px 0 #e0a52e,0 8px 12px rgba(82,85,74,.16)!important;transform:none!important}
-.page-title h1 span{color:#31b95b!important}
-.page-title .title-spark,.page-title .title-star{display:none!important}
+.page-title h1,.page-title .title-spark,.page-title .title-star{display:none!important}
 
+/* Left game stage */
 .game-card{grid-column:1!important;grid-row:2!important;position:relative!important;inset:auto!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;overflow:visible!important;transform:none!important}
 .wheel-scene{position:relative!important;inset:auto!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;margin:0!important;padding:clamp(10px,1.4vh,16px) 0 0!important;box-sizing:border-box!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;overflow:visible!important;transform:none!important;background:transparent!important}
-.wheel-assembly{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;flex:0 0 auto!important;width:clamp(430px,min(32vw,56vh),610px)!important;height:clamp(430px,min(32vw,56vh),610px)!important;max-width:none!important;max-height:none!important;margin:0!important;transform:none!important;scale:1!important}
+.wheel-assembly{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;flex:0 0 auto!important;width:clamp(455px,min(34vw,58vh),635px)!important;height:clamp(455px,min(34vw,58vh),635px)!important;max-width:none!important;max-height:none!important;margin:0!important;transform:none!important;scale:1!important}
 #spin-start{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;flex:0 0 auto!important;width:clamp(290px,20vw,365px)!important;min-width:0!important;height:auto!important;min-height:0!important;max-height:none!important;aspect-ratio:1802/542!important;margin:clamp(70px,8vh,88px) 0 0!important;padding:0!important;transform:none!important;scale:1!important}
 #spin-start:hover{transform:translateY(-2px)!important}#spin-start:active{transform:translateY(1px)!important}
-#spin-main{bottom:max(48px,env(safe-area-inset-bottom))!important;transform:translateX(-50%)!important}
 
+/* Right panel */
 .teacher-sidebar{grid-column:2!important;grid-row:1 / span 2!important;position:relative!important;inset:auto!important;align-self:start!important;justify-self:stretch!important;width:100%!important;height:min(920px,calc(100vh - 144px))!important;min-height:0!important;margin:clamp(68px,7vh,82px) 0 0!important;padding:0!important;display:flex!important;flex-direction:column!important;gap:10px!important;overflow:visible!important;transform:none!important;z-index:15!important}
 .teacher-sidebar>.tabs{flex:0 0 auto!important;height:clamp(50px,5.7vh,62px)!important;min-height:50px!important;margin:0!important;overflow:visible!important}
 .editor-card{flex:1 1 auto!important;min-height:0!important;height:auto!important;overflow:hidden!important}.tool-panel{flex:1 1 auto!important;min-height:0!important;height:100%!important;overflow:hidden!important}
 .entry-list,.history-list{flex:1 1 auto!important;min-height:0!important;max-height:none!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;touch-action:pan-y!important}
 .teacher-actions{flex:0 0 auto!important;min-height:0!important;height:auto!important;margin:0!important;padding:0!important}.teacher-actions .button{min-height:46px!important;max-height:54px!important}
 
-.brand{position:fixed!important;left:clamp(18px,2vw,36px)!important;top:clamp(14px,1.8vh,22px)!important;width:clamp(170px,11vw,205px)!important;height:auto!important;min-width:0!important;min-height:0!important;padding:0!important;overflow:visible!important;transform:none!important;white-space:nowrap!important;z-index:85!important}
-.brand>span{white-space:nowrap!important;line-height:1!important}
+/* Logo and left controls */
+.brand{position:fixed!important;left:clamp(18px,2vw,36px)!important;top:clamp(14px,1.8vh,22px)!important;width:clamp(170px,11vw,205px)!important;height:auto!important;min-width:0!important;min-height:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important;transform:none!important;white-space:nowrap!important;z-index:85!important}
+.brand img{display:none!important}.brand>.brand-icon{display:grid!important}.brand>span{display:block!important;white-space:nowrap!important;line-height:1!important}
 .top-actions{position:fixed!important;left:clamp(22px,2.5vw,46px)!important;top:clamp(250px,29vh,320px)!important;display:flex!important;flex-direction:column!important;gap:clamp(14px,2vh,20px)!important;transform:none!important;z-index:86!important}
 
 @media(max-width:1650px){
  main{grid-template-columns:minmax(0,1fr) clamp(500px,35vw,570px)!important;grid-template-rows:clamp(145px,18vh,175px) minmax(0,1fr)!important;padding:0 clamp(20px,1.8vw,28px) clamp(22px,3vh,30px)!important;column-gap:clamp(18px,1.7vw,28px)!important}
  .page-title{padding:clamp(20px,2.5vh,26px) 0 0 clamp(92px,7vw,115px)!important}
- .page-title h1{font-size:clamp(42px,4.3vw,66px)!important}
- .wheel-assembly{width:clamp(410px,min(31vw,55vh),530px)!important;height:clamp(410px,min(31vw,55vh),530px)!important}
+ .page-title::before{width:min(740px,90%)!important}
+ .wheel-assembly{width:clamp(425px,min(33vw,57vh),550px)!important;height:clamp(425px,min(33vw,57vh),550px)!important}
  #spin-start{width:clamp(270px,20vw,330px)!important;margin-top:clamp(62px,7.3vh,70px)!important}
  .teacher-sidebar{height:min(790px,calc(100vh - 116px))!important;margin-top:clamp(54px,6.5vh,64px)!important}
  .brand{width:180px!important;font-size:18px!important}
@@ -43,9 +44,9 @@ main{position:relative!important;display:grid!important;grid-template-columns:mi
 @media(max-width:1420px){
  main{grid-template-columns:minmax(0,1fr) 480px!important;grid-template-rows:clamp(125px,18vh,145px) minmax(0,1fr)!important;column-gap:18px!important;padding:0 18px 18px!important}
  .page-title{padding:16px 0 0 70px!important}
- .page-title h1{font-size:clamp(36px,4.3vw,56px)!important}
+ .page-title::before{width:min(620px,92%)!important}
  .wheel-scene{padding-top:8px!important}
- .wheel-assembly{width:clamp(370px,min(31vw,54vh),435px)!important;height:clamp(370px,min(31vw,54vh),435px)!important}
+ .wheel-assembly{width:clamp(385px,min(33vw,55vh),450px)!important;height:clamp(385px,min(33vw,55vh),450px)!important}
  #spin-start{width:clamp(235px,20vw,285px)!important;margin-top:56px!important}
  .teacher-sidebar{height:min(650px,calc(100vh - 104px))!important;margin-top:48px!important;gap:8px!important}
  .teacher-sidebar>.tabs{height:48px!important;min-height:48px!important}
@@ -56,8 +57,8 @@ main{position:relative!important;display:grid!important;grid-template-columns:mi
 @media(max-height:760px) and (min-width:901px){
  main{grid-template-rows:118px minmax(0,1fr)!important;padding-bottom:14px!important}
  .page-title{padding-top:12px!important}
- .page-title h1{font-size:44px!important}
- .wheel-assembly{width:min(390px,52vh)!important;height:min(390px,52vh)!important}
+ .page-title::before{width:min(520px,90%)!important}
+ .wheel-assembly{width:min(400px,53vh)!important;height:min(400px,53vh)!important}
  #spin-start{width:245px!important;margin-top:50px!important}
  .teacher-sidebar{margin-top:38px!important;height:calc(100vh - 78px)!important}
  .top-actions{top:175px!important}
@@ -66,5 +67,5 @@ main{position:relative!important;display:grid!important;grid-template-columns:mi
  main{display:flex!important;flex-direction:column!important;padding:0 12px 12px!important;overflow:auto!important}
  .workspace{display:block!important}
  .page-title{position:relative!important;width:100%!important;height:82px!important;padding:8px 54px 0!important;flex:none!important}
- .page-title h1{font-size:clamp(28px,7vw,44px)!important}
+ .page-title::before{width:min(650px,100%)!important}
 }
