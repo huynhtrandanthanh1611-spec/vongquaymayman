@@ -18,6 +18,20 @@ if(/(?:src|href)=["']\/(?!\/)/.test(html))throw new Error('Root-absolute asset p
 if(/Không lặp lại|ĐIỀU BẤT NGỜ ĐANG CHỜ|result-eyebrow|remaining-count|progress-text/.test(html))throw new Error('Removed page labels remain in HTML.');
 if(!html.includes('class="wheel-hub" aria-hidden="true"></div>')||html.includes('id="spin-center"'))throw new Error('The wheel hub must be empty and contain no controls.');
 execFileSync(process.execPath,[path.join(root,'node_modules/vite/bin/vite.js'),'build'],{cwd:root,stdio:'inherit'});
+
+/* Các script giao diện phụ không đi qua Vite vì được nạp trực tiếp từ HTML. */
+for(const name of ['loading-game.js','continuous-list.js']){
+ await fs.copyFile(path.join(dist,name),path.join(output,name));
+}
+
+/* Nạp danh sách cuộn sau khi app chính khởi tạo; script tự chờ state sẵn sàng. */
+const builtIndex=path.join(output,'index.html');
+let builtHtml=await fs.readFile(builtIndex,'utf8');
+if(!builtHtml.includes('continuous-list.js')){
+ builtHtml=builtHtml.replace('</head>','<script defer src="./continuous-list.js"></script></head>');
+ await fs.writeFile(builtIndex,builtHtml);
+}
+
 await fs.writeFile(path.join(output,'.nojekyll'),'');
 await fs.mkdir(path.join(output,'licenses'),{recursive:true});
 await fs.copyFile(path.join(dist,'assets/Nunito-OFL.txt'),path.join(output,'licenses/Nunito-OFL.txt'));
