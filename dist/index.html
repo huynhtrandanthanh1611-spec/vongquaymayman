@@ -15,13 +15,23 @@
     window.addEventListener('error',window.wheelStartupFailed,true);
     window.addEventListener('unhandledrejection',window.wheelStartupFailed);
   </script>
-  <style>.startup-status{display:none;position:fixed;inset:0;z-index:100;background:#fff8e8;color:#866024;align-items:center;justify-content:center;flex-direction:column;gap:18px;text-align:center;padding:24px;font:700 20px system-ui}.startup-status button{font:inherit;padding:12px 24px;border:1px solid #ddb95d;border-radius:18px;background:#ffda77;color:inherit}[data-loading=true] .startup-status{display:flex}.startup-failed{display:none}[data-startup-error=true] .startup-loading{display:none}[data-startup-error=true] .startup-failed{display:block}</style>
+  <style>
+    .startup-status{display:none;position:fixed;inset:0;z-index:100;background:#fff8e8;color:#866024;align-items:center;justify-content:center;flex-direction:column;gap:18px;text-align:center;padding:24px;font:700 20px system-ui}
+    .startup-status button{font:inherit;padding:12px 24px;border:1px solid #ddb95d;border-radius:18px;background:#ffda77;color:inherit}
+    [data-loading=true] .startup-status{display:flex}.startup-failed{display:none}[data-startup-error=true] .startup-loading{display:none}[data-startup-error=true] .startup-failed{display:block}
+    /* Tiêu đề dùng nguyên ảnh tham chiếu, không dựng lại bằng chữ. */
+    .page-title.original-title-banner{margin:4px 0 10px;min-height:0;display:flex;align-items:center;justify-content:center;width:min(100%,900px)}
+    .original-title-banner img{display:block;width:min(100%,760px);height:auto;aspect-ratio:3/1;object-fit:contain;filter:drop-shadow(0 5px 8px rgba(67,123,145,.12))}
+    @media(max-width:1100px){.original-title-banner img{width:min(100%,660px)}}
+    @media(max-width:739px){.page-title.original-title-banner{margin:4px auto 8px}.original-title-banner img{width:min(96vw,620px)}}
+  </style>
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./viewport.css">
   <link rel="stylesheet" href="./lookup.css">
   <link rel="stylesheet" href="./lookup-custom.css">
   <script defer src="./loading-game.js"></script>
   <script type="module" src="./app.js"></script>
+  <script defer src="./continuous-list.js"></script>
   <script type="module" src="./lookup.js"></script>
   <script type="module" src="./voice-quality.js"></script>
   <script type="module" src="./lookup-custom.js"></script>
@@ -36,7 +46,7 @@
       <div class="top-actions"><button id="sound-toggle" class="button button-quiet" aria-pressed="true" aria-label="Tắt âm thanh"><span data-icon="volume"></span><span>Âm thanh</span></button><button id="present" class="button button-white" aria-label="Toàn màn hình"><span data-icon="expand"></span></button></div>
     </header>
     <main>
-      <div class="page-title teacher-only"><span class="title-spark" aria-hidden="true">✦</span><h1>VÒNG QUAY <span>MAY MẮN</span></h1><span class="title-star" aria-hidden="true">🌟</span></div>
+      <div class="page-title original-title-banner teacher-only"><img src="./assets/title-banner.webp" alt="VÒNG QUAY MAY MẮN"></div>
       <div id="storage-notice" class="notice teacher-only" role="status" hidden></div>
       <div class="workspace" id="workspace" data-editor-tab="content">
         <section class="game-card" aria-label="Vòng quay may mắn">
