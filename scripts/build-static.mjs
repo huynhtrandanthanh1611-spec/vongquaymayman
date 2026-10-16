@@ -25,7 +25,7 @@ for(const name of ['loading-game.js','continuous-list.js','title-banner.js','ref
 }
 
 /* Các lớp giao diện chỉ override CSS, không thay logic vòng quay. */
-const uiStyles=['reference-ui-layout.css','reference-ui-panel.css','reference-ui-responsive.css','reference-ui-mobile.css','layout-fix.css','reference-target-final.css','reference-layout-hotfix.css'];
+const uiStyles=['reference-ui-layout.css','reference-ui-panel.css','reference-ui-responsive.css','reference-ui-mobile.css','layout-fix.css','reference-target-final.css','reference-layout-hotfix.css','reference-polish.css'];
 for(const name of uiStyles){
  await fs.copyFile(path.join(dist,name),path.join(output,name));
 }
@@ -34,7 +34,7 @@ for(const name of ['title-banner.webp','btn-quay.png','bg-vongquay.png']){
  await fs.copyFile(path.join(dist,'assets',name),path.join(output,'assets',name));
 }
 
-/* Nạp CSS giao diện sau CSS gốc; reference-layout-hotfix.css luôn có ưu tiên cuối. */
+/* Nạp CSS giao diện sau CSS gốc; reference-polish.css luôn có ưu tiên cuối. */
 const builtIndex=path.join(output,'index.html');
 let builtHtml=await fs.readFile(builtIndex,'utf8');
 for(const name of uiStyles){
