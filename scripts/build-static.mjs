@@ -20,12 +20,12 @@ if(!html.includes('class="wheel-hub" aria-hidden="true"></div>')||html.includes(
 execFileSync(process.execPath,[path.join(root,'node_modules/vite/bin/vite.js'),'build'],{cwd:root,stdio:'inherit'});
 
 /* Các script giao diện phụ được nạp trực tiếp sau build. */
-for(const name of ['loading-game.js','continuous-list.js','title-banner.js']){
+for(const name of ['loading-game.js','continuous-list.js','title-banner.js','reference-visual-tuning.js']){
  await fs.copyFile(path.join(dist,name),path.join(output,name));
 }
 
 /* Các lớp giao diện chỉ override CSS, không thay logic vòng quay. */
-const uiStyles=['reference-ui-layout.css','reference-ui-panel.css','reference-ui-responsive.css','reference-ui-mobile.css','layout-fix.css'];
+const uiStyles=['reference-ui-layout.css','reference-ui-panel.css','reference-ui-responsive.css','reference-ui-mobile.css','layout-fix.css','reference-target-final.css'];
 for(const name of uiStyles){
  await fs.copyFile(path.join(dist,name),path.join(output,name));
 }
@@ -34,7 +34,7 @@ for(const name of ['title-banner.webp','btn-quay.png']){
  await fs.copyFile(path.join(dist,'assets',name),path.join(output,'assets',name));
 }
 
-/* Nạp CSS giao diện sau CSS gốc để layout-fix.css có quyền ưu tiên cuối cùng. */
+/* Nạp CSS giao diện sau CSS gốc; reference-target-final.css luôn có ưu tiên cuối. */
 const builtIndex=path.join(output,'index.html');
 let builtHtml=await fs.readFile(builtIndex,'utf8');
 for(const name of uiStyles){
@@ -42,7 +42,7 @@ for(const name of uiStyles){
   builtHtml=builtHtml.replace('</head>',`<link rel="stylesheet" href="./${name}"></head>`);
  }
 }
-const extras=['continuous-list.js','title-banner.js'];
+const extras=['reference-visual-tuning.js','continuous-list.js','title-banner.js'];
 for(const name of extras){
  if(!builtHtml.includes(name)){
   builtHtml=builtHtml.replace('</head>',`<script defer src="./${name}"></script></head>`);
