@@ -1,6 +1,24 @@
-/* Rebuild the title as live HTML and group wheel + button into one visual machine.
-   This only changes DOM structure/visual layout; IDs and app logic stay intact. */
+/* Rebuild the title as live HTML, group wheel + button into one machine,
+   then fit the complete desktop UI as one 1920x1080 stage. App IDs and logic stay intact. */
 (() => {
+  const BASE_W = 1920;
+  const BASE_H = 1080;
+
+  const fitStage = () => {
+    const shell = document.querySelector('.site-shell');
+    if (!shell) return;
+
+    if (window.matchMedia('(max-width: 900px)').matches) {
+      shell.style.removeProperty('--stage-scale');
+      return;
+    }
+
+    const viewportW = window.innerWidth || document.documentElement.clientWidth || BASE_W;
+    const viewportH = window.innerHeight || document.documentElement.clientHeight || BASE_H;
+    const scale = Math.min(viewportW / BASE_W, viewportH / BASE_H);
+    shell.style.setProperty('--stage-scale', String(Math.max(.45, Math.min(1.25, scale))));
+  };
+
   const run = () => {
     const title = document.querySelector('.page-title');
     const scene = document.getElementById('wheel-scene');
@@ -33,6 +51,8 @@
       scene.insertBefore(machine, assembly);
       machine.append(assembly, spin);
     }
+
+    fitStage();
   };
 
   if (document.readyState === 'loading') {
@@ -40,4 +60,7 @@
   } else {
     run();
   }
+
+  window.addEventListener('resize', fitStage, {passive:true});
+  window.visualViewport?.addEventListener('resize', fitStage, {passive:true});
 })();
