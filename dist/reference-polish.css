@@ -1,0 +1,84 @@
+/* Final screenshot polish: title readability, full landscape background, and bottom clearance. */
+@media (min-width:901px){
+  body{
+    background-size:100% 100%!important;
+    background-position:center center!important;
+    background-repeat:no-repeat!important;
+  }
+
+  .lucky-title{
+    gap:.24em!important;
+    letter-spacing:-.035em!important;
+    transform:none!important;
+    font-size:clamp(60px,4.25vw,78px)!important;
+    filter:drop-shadow(0 7px 5px rgba(82,91,69,.14))!important;
+  }
+  .lucky-title .word{
+    -webkit-text-stroke:7px #fffdf3!important;
+    paint-order:stroke fill!important;
+    text-shadow:0 4px 0 #f4bd32,0 7px 0 #dc8b16,0 10px 11px rgba(76,87,85,.16)!important;
+  }
+  .lucky-title .vong{
+    color:#ff8615!important;
+    background:linear-gradient(180deg,#fff15b 0%,#ff9d18 42%,#ef6711 100%)!important;
+    -webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;
+  }
+  .lucky-title .quay{
+    color:#238eea!important;
+    background:linear-gradient(180deg,#72d8ff 0%,#2d9ef2 43%,#1768d9 100%)!important;
+    -webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;
+  }
+  .lucky-title .may{
+    color:#f04c72!important;
+    background:linear-gradient(180deg,#ff9bb0 0%,#f24f75 47%,#d92b55 100%)!important;
+    -webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;
+  }
+  .lucky-title .man{
+    color:#31b95d!important;
+    background:linear-gradient(180deg,#8ee65e 0%,#35bf5e 48%,#1d9b48 100%)!important;
+    -webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;
+  }
+  .lucky-title::before{
+    left:4%!important;
+    top:-62%!important;
+    font-size:.86em!important;
+  }
+  .lucky-title::after{
+    content:'⭐     ✦     ⭐'!important;
+    left:50%!important;
+    top:-27%!important;
+    transform:translateX(-50%)!important;
+    font-size:.34em!important;
+    letter-spacing:.65em!important;
+    z-index:-1!important;
+  }
+
+  #spin-start{bottom:10px!important}
+
+  [data-mode=play] .play-title{
+    transform:translateX(-50%)!important;
+    gap:.24em!important;
+  }
+}
+
+@media (min-width:901px) and (max-height:820px){
+  .lucky-title{
+    font-size:clamp(50px,3.75vw,61px)!important;
+    gap:.20em!important;
+  }
+  .page-title{
+    top:7px!important;
+    height:80px!important;
+  }
+  .lucky-wheel-machine{
+    top:48px!important;
+    height:calc(var(--hot-wheel) + 102px)!important;
+  }
+  #spin-start{
+    bottom:4px!important;
+  }
+  [data-mode=play] .play-title{
+    top:10px!important;
+    font-size:clamp(48px,3.8vw,60px)!important;
+  }
+}
