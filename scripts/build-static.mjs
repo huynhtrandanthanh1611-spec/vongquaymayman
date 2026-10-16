@@ -30,7 +30,7 @@ for(const name of uiStyles){
  await fs.copyFile(path.join(dist,name),path.join(output,name));
 }
 await fs.mkdir(path.join(output,'assets'),{recursive:true});
-for(const name of ['title-banner.webp','btn-quay.png']){
+for(const name of ['title-banner.webp','btn-quay.png','bg-vongquay.png']){
  await fs.copyFile(path.join(dist,'assets',name),path.join(output,'assets',name));
 }
 
