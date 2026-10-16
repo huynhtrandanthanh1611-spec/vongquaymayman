@@ -22,7 +22,7 @@ for(const file of files.filter(x=>/\.(html|css|js)$/.test(x))){
   await fs.access(path.resolve(path.dirname(path.join(root,file)),relative));
  }
 }
-assert(!files.some(x=>/chibi|mascot/.test(x))&&files.some(x=>/quicksand.*\.ttf$/i.test(x)));
+assert(!files.some(x=>/chibi|mascot/.test(x))&&files.filter(x=>x.endsWith('.ttf')).length===3);
 assert(files.includes('.nojekyll'));
 const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png','.ttf':'font/ttf'};
 const server=http.createServer(async(req,res)=>{try{
@@ -38,3 +38,4 @@ try{for(const base of ['/', '/ten-repository/']){
  assert.equal(new URL(shared).pathname,base);assert.equal(decodeShare(new URL(shared).hash).entries[0],'Ảnh và chữ');
  for(let n=0;n<2;n++){const response=await fetch(shared);assert.equal(response.status,200);assert.equal(await response.text(),html);requests++;}
 }}finally{await new Promise(r=>server.close(r));}
+console.log(`PASS: production entry without mascot, bundled JS/CSS/fonts and ${requests} static HTTP requests at / and /ten-repository/; direct shared links and refresh return the game.`);
