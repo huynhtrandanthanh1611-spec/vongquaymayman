@@ -177,3 +177,19 @@ html[data-mode="teacher"] .wheel-scene{
     bottom:16px !important;
   }
 }
+
+/* Desktop classroom layout tuning.
+   Move the complete right sidebar left and upward as one unit so its visual
+   whitespace above and below is balanced. Do not resize or alter its contents. */
+@media (min-width:901px) and (max-height:900px){
+  html[data-mode="teacher"] .teacher-sidebar{
+    position:relative !important;
+    left:-18px !important;
+    top:-50px !important;
+  }
+
+  /* Give the wheel and PNG button a little more breathing room. */
+  html[data-mode="teacher"] #spin-start{
+    bottom:4px !important;
+  }
+}
