@@ -5,6 +5,37 @@ const RETURN_KEY='lucky-wheel-return-history-v4';
 const store=new TeacherStore();
 let historyDecorateToken=0;
 
+function installWheelTextBoost(){
+  if(window.__luckyWheelTextBoostV4)return;
+  window.__luckyWheelTextBoostV4=true;
+
+  const proto=CanvasRenderingContext2D.prototype;
+  const nativeFillText=proto.fillText;
+  const nativeStrokeText=proto.strokeText;
+  const factor=1.13;
+
+  const withLargerWheelFont=(ctx,draw)=>{
+    if(ctx.canvas?.id!=='wheel')return draw();
+    const original=ctx.font;
+    const match=original.match(/(\d+(?:\.\d+)?)px/);
+    if(!match)return draw();
+    const size=Number(match[1]);
+    if(!Number.isFinite(size)||size<=0)return draw();
+    ctx.font=original.replace(match[0],`${Math.round(size*factor*10)/10}px`);
+    try{return draw();}
+    finally{ctx.font=original;}
+  };
+
+  proto.fillText=function(...args){
+    return withLargerWheelFont(this,()=>nativeFillText.apply(this,args));
+  };
+  proto.strokeText=function(...args){
+    return withLargerWheelFont(this,()=>nativeStrokeText.apply(this,args));
+  };
+}
+
+installWheelTextBoost();
+
 function injectStyles(){
   if($('history-restore-style-v4'))return;
   const style=document.createElement('style');
