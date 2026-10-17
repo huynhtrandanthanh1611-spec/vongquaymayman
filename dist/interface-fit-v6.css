@@ -1,0 +1,134 @@
+/* Teacher viewport fit: keep the wheel, spin button and sidebar fully visible. */
+
+html[data-mode="teacher"] .game-card,
+html[data-mode="teacher"] .wheel-scene{
+  min-height:0;
+  overflow:hidden;
+}
+
+/* The spin button must always stay inside the game card. */
+html[data-mode="teacher"] #spin-start{
+  position:absolute !important;
+  left:50% !important;
+  right:auto !important;
+  top:auto !important;
+  bottom:12px !important;
+  z-index:20 !important;
+  transform:translateX(-50%) !important;
+  margin:0 !important;
+  max-width:min(300px,72%) !important;
+}
+
+html[data-mode="teacher"] #spin-start:hover{
+  transform:translate(-50%,-2px) !important;
+}
+
+html[data-mode="teacher"] #spin-start:active{
+  transform:translate(-50%,1px) !important;
+}
+
+/* Reserve a real footer area for the spin button instead of centering the wheel
+   across the entire card height. */
+html[data-mode="teacher"] .wheel-assembly{
+  top:43% !important;
+  width:min(var(--wheel-size),calc(100% - 64px),58vh) !important;
+  height:auto !important;
+  aspect-ratio:1 / 1 !important;
+  max-height:calc(100% - 116px) !important;
+}
+
+/* Desktop browser windows often lose 150–220 px to browser chrome/taskbar.
+   Compact only the vertical chrome so the whole app still fits without page scroll. */
+@media (min-width:901px) and (max-height:900px){
+  html[data-mode="teacher"] .topbar{
+    height:52px !important;
+    min-height:52px !important;
+  }
+
+  html[data-mode="teacher"] .page-title{
+    height:40px !important;
+    min-height:40px !important;
+    margin:7px 0 10px !important;
+  }
+
+  html[data-mode="teacher"] .page-title h1{
+    font-size:clamp(24px,2.35vw,34px) !important;
+    line-height:1.1 !important;
+  }
+
+  html[data-mode="teacher"] .title-star,
+  html[data-mode="teacher"] .title-spark{
+    font-size:27px !important;
+  }
+
+  html[data-mode="teacher"] main{
+    padding-bottom:8px !important;
+  }
+
+  html[data-mode="teacher"] .workspace{
+    gap:18px !important;
+  }
+
+  html[data-mode="teacher"] .wheel-assembly{
+    top:42% !important;
+    width:min(var(--wheel-size),calc(100% - 70px),55vh) !important;
+    max-height:calc(100% - 108px) !important;
+  }
+
+  html[data-mode="teacher"] #spin-start{
+    bottom:10px !important;
+    width:clamp(210px,18vw,280px) !important;
+    min-width:0 !important;
+    min-height:0 !important;
+  }
+
+  html[data-mode="teacher"] .teacher-sidebar{
+    gap:8px !important;
+  }
+
+  html[data-mode="teacher"] .teacher-sidebar>.tabs{
+    height:40px !important;
+    min-height:40px !important;
+  }
+
+  html[data-mode="teacher"] .editor-card{
+    padding:14px !important;
+  }
+
+  html[data-mode="teacher"] .teacher-actions{
+    padding:0 0 3px !important;
+    gap:8px !important;
+  }
+
+  html[data-mode="teacher"] .teacher-actions .button{
+    min-height:44px !important;
+  }
+}
+
+@media (min-width:901px) and (max-height:760px){
+  html[data-mode="teacher"] .topbar{
+    height:46px !important;
+    min-height:46px !important;
+  }
+
+  html[data-mode="teacher"] .page-title{
+    height:32px !important;
+    min-height:32px !important;
+    margin:4px 0 7px !important;
+  }
+
+  html[data-mode="teacher"] .page-title h1{
+    font-size:25px !important;
+  }
+
+  html[data-mode="teacher"] .wheel-assembly{
+    top:41% !important;
+    width:min(var(--wheel-size),calc(100% - 76px),51vh) !important;
+    max-height:calc(100% - 98px) !important;
+  }
+
+  html[data-mode="teacher"] #spin-start{
+    bottom:7px !important;
+    width:clamp(190px,17vw,250px) !important;
+  }
+}
