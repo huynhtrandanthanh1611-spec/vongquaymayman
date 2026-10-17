@@ -193,3 +193,13 @@ html[data-mode="teacher"] .wheel-scene{
     bottom:4px !important;
   }
 }
+
+/* Remove the top-left classroom label and the horizontal divider only. */
+html[data-mode="teacher"] .brand{
+  display:none !important;
+}
+
+html[data-mode="teacher"] .topbar{
+  border-bottom:0 !important;
+  justify-content:flex-end !important;
+}
