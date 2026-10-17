@@ -231,3 +231,16 @@ html[data-mode="teacher"] .page-title{
     min-height:0 !important;
   }
 }
+
+/* Fine positioning requested for the current desktop layout.
+   Lower QUAY TIẾP so it no longer touches the wheel and bring the editor
+   closer to the wheel without resizing either area. */
+@media (min-width:901px){
+  html[data-mode="teacher"] #spin-start{
+    bottom:18px !important;
+  }
+
+  html[data-mode="teacher"] .teacher-sidebar{
+    left:-100px !important;
+  }
+}
