@@ -517,3 +517,11 @@
   background: #FFD86B;
   color: #6B4318;
 }
+
+/* Hotfix: keep the first character visible inside flex entry rows. */
+.entry-row input {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  text-indent: 0;
+}
