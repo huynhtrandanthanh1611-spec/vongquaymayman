@@ -1,0 +1,48 @@
+/* Keep the complete wheel area inside the white game card in teacher mode. */
+html[data-mode="teacher"] .game-card{
+  overflow:hidden !important;
+}
+
+html[data-mode="teacher"] .wheel-assembly{
+  top:calc(50% - 34px) !important;
+}
+
+html[data-mode="teacher"] #spin-start{
+  position:absolute !important;
+  left:50% !important;
+  bottom:10px !important;
+  z-index:12 !important;
+  transform:translateX(-50%) !important;
+  margin:0 !important;
+  width:clamp(210px,18vw,285px) !important;
+  max-width:34% !important;
+}
+
+html[data-mode="teacher"] #spin-start:hover{
+  transform:translate(-50%,-2px) !important;
+}
+
+html[data-mode="teacher"] #spin-start:active{
+  transform:translate(-50%,1px) !important;
+}
+
+@media (max-height:760px) and (min-width:740px){
+  html[data-mode="teacher"] .wheel-assembly{
+    top:calc(50% - 30px) !important;
+  }
+  html[data-mode="teacher"] #spin-start{
+    bottom:8px !important;
+    width:clamp(195px,17vw,265px) !important;
+  }
+}
+
+@media (max-width:739px){
+  html[data-mode="teacher"] .wheel-assembly{
+    top:calc(50% - 28px) !important;
+  }
+  html[data-mode="teacher"] #spin-start{
+    bottom:8px !important;
+    width:min(260px,58vw) !important;
+    max-width:none !important;
+  }
+}
