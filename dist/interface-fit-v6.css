@@ -203,3 +203,31 @@ html[data-mode="teacher"] .topbar{
   border-bottom:0 !important;
   justify-content:flex-end !important;
 }
+
+/* ===== Final desktop composition =====
+   1) Remove the page title completely.
+   2) Use the freed vertical space to lift the wheel area.
+   3) Keep QUAY TIẾP clearly below the wheel, but higher on the page.
+   4) Let the right editor occupy the newly available height and move it left
+      so it sits closer to the wheel. */
+html[data-mode="teacher"] .page-title{
+  display:none !important;
+}
+
+@media (min-width:901px){
+  html[data-mode="teacher"] .wheel-assembly{
+    top:20px !important;
+  }
+
+  html[data-mode="teacher"] #spin-start{
+    bottom:38px !important;
+  }
+
+  html[data-mode="teacher"] .teacher-sidebar{
+    position:relative !important;
+    left:-70px !important;
+    top:0 !important;
+    height:100% !important;
+    min-height:0 !important;
+  }
+}
