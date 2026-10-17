@@ -152,17 +152,27 @@ html[data-mode="teacher"] #spin-start:active{
   }
 }
 
-/* Desktop-only correction for the 1648×929 classroom layout.
-   Move the complete left game card upward without resizing the wheel or button.
-   This removes the unnecessary white band at the bottom while keeping the pointer
-   and wheel geometry unchanged. */
+/* Final wheel-area correction only.
+   Remove the white card surface so the website background stays continuous,
+   and cancel the previous upward shift that was clipping the top of the wheel. */
+html[data-mode="teacher"] .game-card{
+  top:0 !important;
+  background:transparent !important;
+  border-color:transparent !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+}
+
+html[data-mode="teacher"] .wheel-scene{
+  background:transparent !important;
+}
+
+/* Keep enough clearance for the pointer so the complete wheel is visible. */
 @media (min-width:901px){
-  html[data-mode="teacher"] .game-card{
-    position:relative !important;
-    top:-24px !important;
+  html[data-mode="teacher"] .wheel-assembly{
+    top:20px !important;
   }
 
-  /* Raise the PNG button a little further inside the card. */
   html[data-mode="teacher"] #spin-start{
     bottom:16px !important;
   }
