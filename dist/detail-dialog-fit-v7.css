@@ -1,0 +1,82 @@
+/* Keep the Nghĩa & Ảnh editor fully visible without internal scrolling. */
+#entry-detail-dialog-v3{
+  width:min(590px,calc(100vw - 32px)) !important;
+  max-height:calc(100dvh - 32px) !important;
+  overflow:hidden !important;
+  padding:18px 22px !important;
+  overscroll-behavior:none !important;
+}
+
+#entry-detail-dialog-v3 .detail-v3-form{
+  gap:8px !important;
+}
+
+#entry-detail-dialog-v3 .detail-v3-header h2{
+  font-size:22px !important;
+}
+
+#entry-detail-dialog-v3 #detail-v3-meaning{
+  height:96px !important;
+  min-height:96px !important;
+  max-height:96px !important;
+  resize:none !important;
+}
+
+#entry-detail-dialog-v3 #detail-v3-drop{
+  height:160px !important;
+}
+
+#entry-detail-dialog-v3 .detail-v3-image-actions button,
+#entry-detail-dialog-v3 .detail-v3-actions button{
+  min-height:35px !important;
+  padding:7px 12px !important;
+}
+
+@media (max-height:760px){
+  #entry-detail-dialog-v3{
+    max-height:calc(100dvh - 20px) !important;
+    padding:14px 18px !important;
+    border-radius:20px !important;
+  }
+
+  #entry-detail-dialog-v3 .detail-v3-form{
+    gap:6px !important;
+  }
+
+  #entry-detail-dialog-v3 .detail-v3-header h2{
+    font-size:20px !important;
+  }
+
+  #entry-detail-dialog-v3 .detail-v3-close{
+    width:32px !important;
+    height:32px !important;
+  }
+
+  #entry-detail-dialog-v3 #detail-v3-meaning{
+    height:78px !important;
+    min-height:78px !important;
+    max-height:78px !important;
+  }
+
+  #entry-detail-dialog-v3 #detail-v3-drop{
+    height:126px !important;
+  }
+
+  #entry-detail-dialog-v3 .detail-v3-image-actions button,
+  #entry-detail-dialog-v3 .detail-v3-actions button{
+    min-height:32px !important;
+    padding:6px 10px !important;
+  }
+}
+
+@media (max-width:739px){
+  #entry-detail-dialog-v3{
+    width:calc(100vw - 20px) !important;
+    max-height:calc(100dvh - 20px) !important;
+    padding:13px 14px !important;
+  }
+
+  #entry-detail-dialog-v3 #detail-v3-drop{
+    height:118px !important;
+  }
+}
