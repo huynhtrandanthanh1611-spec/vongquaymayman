@@ -241,6 +241,6 @@ html[data-mode="teacher"] .page-title{
   }
 
   html[data-mode="teacher"] .teacher-sidebar{
-    left:-100px !important;
+    left:-120px !important;
   }
 }
